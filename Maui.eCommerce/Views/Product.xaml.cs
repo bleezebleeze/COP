@@ -15,6 +15,7 @@ public partial class Product : ContentPage
 	public int ProductId { get; set; }	
 	private void GoBackClicked(object sender, EventArgs e)
 	{
+		(BindingContext as ProductViewModel).Undo();
 		Shell.Current.GoToAsync("//InventoryManagement");
 	}
 
@@ -32,7 +33,7 @@ public partial class Product : ContentPage
 		}
 		else
 		{
-			BindingContext =new ProductViewModel(ProductServiceProxy.Current.GetById(ProductId));
+			BindingContext = new ProductViewModel(ProductServiceProxy.Current.GetById(ProductId));
 		}
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using COP.Models;
@@ -9,112 +11,86 @@ namespace COP.Servuces
 {
     public class CartServiceProxy
     {
+        private ProductServiceProxy _prodSvc = ProductServiceProxy.Current;
+        private List<Item> items;
 
-        private static CartServiceProxy? instance;
-        private static object instanceLock = new object();
-
-        private CartServiceProxy()
+        public List<Item> CartItems
         {
-            Cart = new List<Product>();
+            get
+            {
+                return items;
+            }
         }
 
         public static CartServiceProxy Current
         {
             get
             {
-                if (instance == null)
+                if(instance == null)
                 {
-                    lock (instanceLock)
-                    {
-                        if (instance == null)
-                        {
-                            instance = new CartServiceProxy();
-                        }
-                    }
+                    instance = new CartServiceProxy();
                 }
+
                 return instance;
             }
-
         }
 
-        public List<Product?> Cart { get; set; }
-        public void AddToCart(int id, int quantity)
+        private static CartServiceProxy? instance;
+
+        private CartServiceProxy()
         {
-            var product = ProductServiceProxy.Current?.Products.FirstOrDefault(p => p.Id == id);
-            if (product != null && product.StockQuantity >= quantity)
-            {
-                product.StockQuantity -= quantity;
-                var cartProduct = new Product(product.Name, product.Price, product.StockQuantity)
-                {
-                    Id = product.Id,
-                    CartQuantity = quantity
-                };
-                Cart.Add(cartProduct);
-            }
-            else
-            {
-                Console.WriteLine("Product is not stocked enough.");
-            }
+            items = new List<Item>();
         }
 
-        public void DisplayCart()
+        public Item? AddOrUpdate(Item item)
         {
-            Console.WriteLine("Shopping Cart:");
-            Cart.ForEach(item => Console.WriteLine(item?.CartDisplay));
+            var existingInvItem = _prodSvc.GetById(item.Id);
+            if (existingInvItem == null || existingInvItem.Quantity == 0)
+            {
+                return null;
+            }
+            
+            if (existingInvItem != null)
+            {
+                existingInvItem.Quantity--;
+            }
+            
+            var existingItem = CartItems.FirstOrDefault(i => i.Id == item.Id);
+            if(existingItem == null)
+            {
+                var newItem = new Item(item);
+                newItem.Quantity = 1;
+                CartItems.Add(newItem);
+
+            } else
+            {
+                existingItem.Quantity++;
+            }
+
+            return existingInvItem;
         }
 
-
-        public void UpdateCart(int id, int newQuantity)
+        public Item? ReturnItem(Item item)
         {
-            var item = Cart.FirstOrDefault(p => p.Id == id);
-            if (item != null)
+            if (item.Id <= 0 || item == null)
             {
-                var inventoryItem = ProductServiceProxy.Current?.Products.FirstOrDefault(p => p.Name == item.Name);
-                if (inventoryItem != null && inventoryItem.StockQuantity + item.CartQuantity >= newQuantity)
-                {
-                    int quantityChange = newQuantity - item.CartQuantity;
-                    inventoryItem.StockQuantity -= quantityChange;
-                    item.CartQuantity = newQuantity;
-                    Console.WriteLine("Cart item successfully updated");
-                }
-                else
-                {
-                    Console.WriteLine("Insufficient stock");
-                }
+                return null;
+            }
 
-            }
-            else
+            var itemToReturn = CartItems.FirstOrDefault(c => c.Id == item.Id);
+            if (itemToReturn != null)
             {
-                Console.WriteLine("Cart item not found.");
-            }
-        }
-        public void DeleteFromCart(int id)
-        {
-            var item = Cart.FirstOrDefault(p => p.Id == id);
-            if (item != null)
-            {
-                Cart.Remove(item);
-                var product = ProductServiceProxy.Current?.Products.FirstOrDefault(p => p.Name == item.Name);
-                if (product != null)
+                itemToReturn.Quantity--;
+                var inventoryItem = _prodSvc.Products.FirstOrDefault(p => p.Id == itemToReturn.Id);
+                if (inventoryItem == null)
                 {
-                    product.StockQuantity += item.CartQuantity;
+                    _prodSvc.AddOrUpdate(new Item(itemToReturn));
+                } else
+                {
+                    inventoryItem.Quantity++;
                 }
             }
-        }
-
-        public void Checkout()
-        {
-            decimal total = Cart.Sum(p => p.Price * p.CartQuantity);
-            decimal tax = total * 0.07m;
-            decimal finalTotal = total + tax;
-
-            Console.WriteLine("Reciept: ");
-            Cart.ForEach(item => Console.WriteLine(item.CartDisplay));
-            Console.WriteLine($"Subtotal: ${total:F2}");
-            Console.WriteLine($"Tax: ${tax:F2}");
-            Console.WriteLine($"Total: ${finalTotal:F2}");
-
-            Cart.Clear();
+            return itemToReturn;
         }
     }
 }
