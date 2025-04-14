@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using COP.DTO;
 using COP.Models;
+using COP.Utilities;
 
 namespace COP.Servuces
 {
@@ -16,6 +17,7 @@ namespace COP.Servuces
 
         private ProductServiceProxy()
         {
+            var ProductPayload = new WebRequestHandler().Get("/Inventory");
             Products = new List<Item?>
             {
                 new Item{ Product = new ProductDTO{Id = 1, Name ="Product 1"}, Id = 1, Quantity = 1 },

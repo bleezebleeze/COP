@@ -17,7 +17,7 @@ namespace COP.Models
         public ProductDTO Product { get; set; }
         public int? Quantity { get; set; }
 
-        public ICommand? AddCommand { get; set; }
+        
 
 
         public override string ToString()
@@ -37,20 +37,14 @@ namespace COP.Models
             Product = new ProductDTO();
             Quantity = 0;
 
-            AddCommand = new Command(DoAdd);
-        }
+             }
 
-        private void DoAdd()
-        {
-            CartServiceProxy.Current.AddOrUpdate(this);
-        }
+        
         public Item(Item i)
         {
             Product = new ProductDTO(i.Product);
             Quantity = i.Quantity;
             Id = i.Id;
-
-           AddCommand = new Command(DoAdd);
         }
     }
 }
