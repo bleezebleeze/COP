@@ -52,7 +52,7 @@ namespace Maui.eCommerce.ViewModels
         public void RefreshUx()
         {
             NotifyPropertyChanged(nameof(Inventory));
-            NotifyPropertyChanged(nameof(ShoppingCart));    
+            NotifyPropertyChanged(nameof(ShoppingCart));
         }
 
         public void PurchaseItem()
@@ -67,10 +67,10 @@ namespace Maui.eCommerce.ViewModels
                     NotifyPropertyChanged(nameof(Inventory));
                     NotifyPropertyChanged(nameof(ShoppingCart));
                 }
-                
+
             }
-    
-          
+
+
         }
         public void ReturnItem()
         {
@@ -79,12 +79,71 @@ namespace Maui.eCommerce.ViewModels
                 var shouldRefresh = SelectedCartItem.Model.Quantity >= 1;
                 var updatedItem = _cartSvc.ReturnItem(SelectedCartItem.Model);
 
-                if(updatedItem != null && shouldRefresh)
+                if (updatedItem != null && shouldRefresh)
                 {
                     NotifyPropertyChanged(nameof(Inventory));
                     NotifyPropertyChanged(nameof(ShoppingCart));
                 }
             }
+        }
+
+        public decimal CalculateTotal()
+        {
+            return _cartSvc.CartItems.Sum(i => (i.Price * i.Quantity) ?? 0);
+        }
+
+        public decimal CalculateTax()
+        {
+            decimal subtotal = CalculateTotal();
+            return subtotal * 0.07m;
+        }
+
+        public decimal CalculateTotalWithTax()
+        {
+            decimal subtotal = CalculateTotal();
+            decimal tax = subtotal * 0.07m;
+            return subtotal + tax;
+        }
+
+        public async void Checkout()
+        {
+            if(_cartSvc.CartItems.Count == 0 || _cartSvc.CartItems.All(i => i.Price <= 0))
+            {
+                await Application.Current.MainPage.DisplayAlert("Checkout", "Your Cart is Empty", "OK");
+                return;
+
+            }
+
+            decimal subtotal = CalculateTotal();
+            decimal tax = CalculateTax();
+            decimal total = CalculateTotalWithTax();
+
+            StringBuilder receipt = new StringBuilder();
+            receipt.AppendLine("Receipt:");
+            receipt.AppendLine("-------");
+
+            foreach (var item in _cartSvc.CartItems.Where(i => i.Quantity > 0))
+            {
+                receipt.AppendLine($"+{item.Product.Name} x{item.Quantity} - ${item.Price * item.Quantity:F2}");
+            }
+
+            receipt.AppendLine("-------");
+            receipt.AppendLine($"Subtotal: ${subtotal:F2}");
+            receipt.AppendLine($"Tax (7%): ${tax:F2}");
+            receipt.AppendLine($"Total: ${total:F2}");
+
+            await Application.Current.MainPage.DisplayAlert("Checkout Complete", receipt.ToString(), "OK");
+
+            foreach (var item in _cartSvc.CartItems.ToList())
+            {
+                while (item.Quantity > 0)
+                {
+                    _cartSvc.ReturnItem(item);
+                }
+                
+            }
+
+            RefreshUx();
         }
     }
 
