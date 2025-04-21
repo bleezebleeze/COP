@@ -20,6 +20,14 @@
         <Entry
             Text="{Binding Quantity}"
             />
+        <Label
+           Text="Price: $"
+           VerticalOptions="Center"
+           HorizontalOptions="Center" />
+        <Entry
+            Text="{Binding Price}"
+            Keyboard="Numeric"
+            />
         <Button Text="OK" Clicked="OKClicked" />
 
         <Button Text="Go Back" Clicked="GoBackClicked"/>
