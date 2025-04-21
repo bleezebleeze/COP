@@ -15,12 +15,13 @@ namespace COP.Models
         public int Id { get; set; }
 
         public string? Name { get; set; }
+        public decimal? Price { get; set; }
 
         public string? Display
         {
             get
             {
-                return $"{Id}. {Name}";
+                return $"{Id}. {Name} - ${Price:F2}";
             }
         }
 
@@ -34,12 +35,14 @@ namespace COP.Models
         public Product()
         {
             Name = string.Empty;
+            Price = 0;
         }
 
         public Product(Product p)
         {
             Name = p.Name;
             Id = p.Id;
+            Price = p.Price;
         }
         public override string ToString()
         {
@@ -50,6 +53,7 @@ namespace COP.Models
         {
             Name = p.Name;
             Id = p.Id;
+            Price = p.Price;
             LegacyProperty1 = string.Empty;
         }
     }

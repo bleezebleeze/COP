@@ -17,18 +17,20 @@ namespace COP.Models
         public ProductDTO Product { get; set; }
         public int? Quantity { get; set; }
 
+        public decimal Price { get; set; }
+
         
 
 
         public override string ToString()
         {
-            return $"{ Product.ToString()} Quantity: {Quantity}";
+            return $"{ Product.ToString()} Quantity: {Quantity} Price: {Price:F2}";
         }
         public string Display 
         {  
             get
             {
-                return $"{Product?.Display ?? string.Empty} {Quantity}";
+                return $"{Product?.Display ?? string.Empty} {Quantity} {Price:F2}";
             } 
         }
 
@@ -36,6 +38,7 @@ namespace COP.Models
         {
             Product = new ProductDTO();
             Quantity = 0;
+            Price = 0;
 
              }
 
@@ -44,6 +47,7 @@ namespace COP.Models
         {
             Product = new ProductDTO(i.Product);
             Quantity = i.Quantity;
+            Price = i.Price;
             Id = i.Id;
         }
     }
