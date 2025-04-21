@@ -24,4 +24,9 @@ public partial class ShoppingManagementView : ContentPage
     {
         (BindingContext as ShoppingManagementViewModel).RefreshUx();
     }
+
+    private void CheckoutClicked(object sender, EventArgs e)
+    {
+        (BindingContext as ShoppingManagementViewModel)?.Checkout();
+    }
 }
