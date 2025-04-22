@@ -13,10 +13,18 @@ namespace Maui.eCommerce.ViewModels
     {
         public Item Model { get; set; }
 
+        public int QuantityToAdd { get; set; } = 1;
+
+
         public ICommand? AddCommand { get; set; }
         private void DoAdd()
         {
-            CartServiceProxy.Current.AddOrUpdate(Model);
+
+            for (int i = 0; i < QuantityToAdd; i++)
+            {
+                CartServiceProxy.Current.AddOrUpdate(Model);
+            }
+            
         }
 
         void SetupCommand()
@@ -26,13 +34,14 @@ namespace Maui.eCommerce.ViewModels
         public ItemViewModel()
         {
             Model = new Item();
-
+            QuantityToAdd = 1;
             SetupCommand();
         }
 
         public ItemViewModel(Item model)
         {
             Model = model;
+            QuantityToAdd = 1;
             SetupCommand();
         }
 

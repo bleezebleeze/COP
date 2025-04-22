@@ -9,6 +9,10 @@
             <ColumnDefinition/><!--USER SHOPPING CART-->
         </Grid.ColumnDefinitions>
 
+        <Label Grid.Row="0"
+               Text="{Binding CurrentTaxRate, StringFormat='Current Tax Rate: {0:F2}%'}"
+               HorizontalOptions="End"/>
+
         <!--STORE-->
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
@@ -30,6 +34,7 @@
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
                                     <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="1.5*"/>
                                     <ColumnDefinition/>
                                   
 
@@ -39,7 +44,8 @@
                                 <Label Grid.Column="2" Text="x"/>
                                 <Label Grid.Column="3" Text="{Binding Model.Quantity}"/>
                                 <Label Grid.Column="4" Text="{Binding Model.Price}"/>
-                                <Button Grid.Column="5" Text="+" Command="{Binding AddCommand}" Clicked="InlineAddClicked"/>
+                                <Entry Grid.Column="5" Text="{Binding QuantityToAdd}" Keyboard="Numeric" HorizontalTextAlignment="Center"/>
+                                <Button Grid.Column="6" Text="+" Command="{Binding AddCommand}" Clicked="InlineAddClicked"/>
                             </Grid>
 
                         </ViewCell>
