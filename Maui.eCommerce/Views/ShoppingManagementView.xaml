@@ -9,6 +9,10 @@
             <ColumnDefinition/><!--USER SHOPPING CART-->
         </Grid.ColumnDefinitions>
 
+        <Label Grid.Row="0"
+               Text="{Binding CurrentTaxRate, StringFormat='Current Tax Rate: {0:F2}%'}"
+               HorizontalOptions="End"/>
+
         <!--STORE-->
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>

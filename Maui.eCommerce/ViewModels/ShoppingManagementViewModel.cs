@@ -17,6 +17,15 @@ namespace Maui.eCommerce.ViewModels
         private CartServiceProxy _cartSvc = CartServiceProxy.Current;
         public ItemViewModel? SelectedItem { get; set; }
         public ItemViewModel? SelectedCartItem { get; set; }
+
+        public decimal CurrentTaxRate
+        {
+            get
+            {
+                return ConfigurationViewModel.TaxRate * 100;
+            }
+        }
+
         public ObservableCollection<ItemViewModel?> Inventory
         {
             get
@@ -53,6 +62,7 @@ namespace Maui.eCommerce.ViewModels
         {
             NotifyPropertyChanged(nameof(Inventory));
             NotifyPropertyChanged(nameof(ShoppingCart));
+            NotifyPropertyChanged(nameof(CurrentTaxRate));
         }
 
         public void PurchaseItem()
@@ -95,13 +105,13 @@ namespace Maui.eCommerce.ViewModels
         public decimal CalculateTax()
         {
             decimal subtotal = CalculateTotal();
-            return subtotal * 0.07m;
+            return subtotal * ConfigurationViewModel.TaxRate;
         }
 
         public decimal CalculateTotalWithTax()
         {
             decimal subtotal = CalculateTotal();
-            decimal tax = subtotal * 0.07m;
+            decimal tax = subtotal * ConfigurationViewModel.TaxRate;
             return subtotal + tax;
         }
 
@@ -129,7 +139,7 @@ namespace Maui.eCommerce.ViewModels
 
             receipt.AppendLine("-------");
             receipt.AppendLine($"Subtotal: ${subtotal:F2}");
-            receipt.AppendLine($"Tax (7%): ${tax:F2}");
+            receipt.AppendLine($"Tax ({ConfigurationViewModel.TaxRate * 100:F2}%) ${tax:F2}");
             receipt.AppendLine($"Total: ${total:F2}");
 
             await Application.Current.MainPage.DisplayAlert("Checkout Complete", receipt.ToString(), "OK");
