@@ -15,6 +15,20 @@
             <Entry Text="{Binding Query}" Grid.Column="0"/>
             <Button Text="Search" Grid.Column="1" Clicked="SearchClicked"/>
         </Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Text="Sort by:" VerticalOptions="Center" Grid.Column="0"/>
+            <Button Text="Name ↑" Grid.Column="1" Clicked="SortByNameAscendingClicked"/>
+            <Button Text="Name ↓" Grid.Column="2" Clicked="SortByNameDescendingClicked"/>
+            <Button Text="Price ↑" Grid.Column="3" Clicked="SortByPriceAscendingClicked"/>
+            <Button Text="Price ↓" Grid.Column="3" Clicked="SortByPriceDescendingClicked"/>
+        </Grid>
         <ListView
             ItemsSource="{Binding Products}"
             SelectedItem="{Binding SelectedProduct}"

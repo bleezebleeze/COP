@@ -16,6 +16,28 @@ namespace Maui.eCommerce.ViewModels
         public Item? SelectedProduct { get; set; }
         public string? Query { get; set; }
         private ProductServiceProxy _svc = ProductServiceProxy.Current;
+        public enum SortOption
+        {
+            None,
+            NameAscending,
+            NameDescending,
+            PriceAscending,
+            PriceDescending
+        }
+
+        private SortOption _currentSortOption = SortOption.None;
+        public SortOption CurrentSortOption
+        {
+            get => _currentSortOption;
+            set
+            {
+                if (_currentSortOption != value)
+                {
+                    _currentSortOption = value;
+                    NotifyPropertyChanged(nameof(Products));
+                }
+            }
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -39,6 +61,24 @@ namespace Maui.eCommerce.ViewModels
             get
             {
                 var filteredList = _svc.Products.Where(p => p?.Product?.Name?.ToLower().Contains(Query?.ToLower() ?? string.Empty) ?? false);
+                switch (CurrentSortOption)
+                {
+                    case SortOption.NameAscending:
+                        filteredList = filteredList.OrderBy(p => p?.Product?.Name);
+                        break;
+                    case SortOption.NameDescending:
+                        filteredList = filteredList.OrderByDescending(p => p?.Product?.Name);
+                        break;
+                    case SortOption.PriceAscending:
+                        filteredList = filteredList.OrderBy(p => p?.Price);
+                        break;
+                    case SortOption.PriceDescending:
+                        filteredList = filteredList.OrderByDescending(p => p?.Price);
+                        break;
+                    default:
+                        break;
+                }
+
                 return new ObservableCollection<Item?>(filteredList);
             }
         }
@@ -48,6 +88,26 @@ namespace Maui.eCommerce.ViewModels
             var item = _svc.Delete(SelectedProduct?.Id ?? 0);
             NotifyPropertyChanged("Products");
             return item;
+        }
+
+        public void SortByNameAscending()
+        {
+            CurrentSortOption = SortOption.NameAscending;
+        }
+
+        public void SortByNameDescending()
+        {
+            CurrentSortOption = SortOption.NameDescending;
+        }
+
+        public void SortByPriceAscending()
+        {
+            CurrentSortOption = SortOption.PriceAscending;
+        }
+
+        public void SortByPriceDescending()
+        {
+            CurrentSortOption = SortOption.PriceDescending;
         }
     }
 }

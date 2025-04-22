@@ -42,4 +42,24 @@ public partial class InventoryManagementView : ContentPage
 	{
 		(BindingContext as InventoryManagementViewModel)?.RefreshProductList();
 	}
+
+    private void SortByNameAscendingClicked(object sender, EventArgs e)
+    {
+        (BindingContext as InventoryManagementViewModel)?.SortByNameAscending();
+    }
+
+    private void SortByNameDescendingClicked(object sender, EventArgs e)
+    {
+        (BindingContext as InventoryManagementViewModel)?.SortByNameDescending();
+    }
+
+    private void SortByPriceAscendingClicked(object sender, EventArgs e)
+    {
+        (BindingContext as InventoryManagementViewModel)?.SortByPriceAscending();
+    }
+
+    private void SortByPriceDescendingClicked(object sender, EventArgs e)
+    {
+        (BindingContext as InventoryManagementViewModel)?.SortByPriceDescending();
+    }
 }

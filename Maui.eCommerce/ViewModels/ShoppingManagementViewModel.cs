@@ -18,6 +18,41 @@ namespace Maui.eCommerce.ViewModels
         public ItemViewModel? SelectedItem { get; set; }
         public ItemViewModel? SelectedCartItem { get; set; }
 
+        public enum SortOption
+        {
+            None,
+            NameAscending,
+            NameDescending,
+            PriceAscending,
+            PriceDescending
+        }
+        private SortOption _inventorySortOption = SortOption.None;
+        public SortOption InventorySortOption
+        {
+            get => _inventorySortOption;
+            set
+            {
+                if (_inventorySortOption != value)
+                {
+                    _inventorySortOption = value;
+                    NotifyPropertyChanged(nameof(Inventory));
+                }
+            }
+        }
+
+        private SortOption _cartSortOption = SortOption.None;
+        public SortOption CartSortOption
+        {
+            get => _cartSortOption;
+            set
+            {
+                if (_cartSortOption != value)
+                {
+                    _cartSortOption = value;
+                    NotifyPropertyChanged(nameof(ShoppingCart));
+                }
+            }
+        }
         public decimal CurrentTaxRate
         {
             get
@@ -30,9 +65,26 @@ namespace Maui.eCommerce.ViewModels
         {
             get
             {
-                return new ObservableCollection<ItemViewModel?>(_invSvc.Products
-                    .Where(i => i?.Quantity > 0).Select(m => new ItemViewModel(m))
-                    );
+                var items = _invSvc.Products.Where(i => i?.Quantity > 0);
+                switch (InventorySortOption)
+                {
+                    case SortOption.NameAscending:
+                        items = items.OrderBy(p => p?.Product?.Name);
+                        break;
+                    case SortOption.NameDescending:
+                        items = items.OrderByDescending(p => p?.Product?.Name);
+                        break;
+                    case SortOption.PriceAscending:
+                        items = items.OrderBy(p => p?.Price);
+                        break;
+                    case SortOption.PriceDescending:
+                        items = items.OrderByDescending(p => p?.Price);
+                        break;
+                    default:
+                        break;
+                }
+
+                return new ObservableCollection<ItemViewModel?>(items.Select(m => new ItemViewModel(m)));
             }
         }
 
@@ -40,9 +92,26 @@ namespace Maui.eCommerce.ViewModels
         {
             get
             {
-                return new ObservableCollection<ItemViewModel?>(_cartSvc.CartItems
-                    .Where(i => i?.Quantity > 0).Select(m => new ItemViewModel(m))
-                    );
+                var items = _cartSvc.CartItems.Where(i => i?.Quantity > 0);
+                switch (CartSortOption)
+                {
+                    case SortOption.NameAscending:
+                        items = items.OrderBy(p => p?.Product?.Name);
+                        break;
+                    case SortOption.NameDescending:
+                        items = items.OrderByDescending(p => p?.Product?.Name);
+                        break;
+                    case SortOption.PriceAscending:
+                        items = items.OrderBy(p => p?.Price);
+                        break;
+                    case SortOption.PriceDescending:
+                        items = items.OrderByDescending(p => p?.Price);
+                        break;
+                    default:
+                        break;
+                }
+
+                return new ObservableCollection<ItemViewModel?>(items.Select(m => new ItemViewModel(m)));
             }
         }
 
@@ -165,6 +234,46 @@ namespace Maui.eCommerce.ViewModels
 
             itemViewModel.QuantityToAdd = 1;
             RefreshUx();
+        }
+
+        public void SortInventoryByNameAscending()
+        {
+            InventorySortOption = SortOption.NameAscending;
+        }
+
+        public void SortInventoryByNameDescending()
+        {
+            InventorySortOption = SortOption.NameDescending;
+        }
+
+        public void SortInventoryByPriceAscending()
+        {
+            InventorySortOption = SortOption.PriceAscending;
+        }
+
+        public void SortInventoryByPriceDescending()
+        {
+            InventorySortOption = SortOption.PriceDescending;
+        }
+
+        public void SortCartByNameAscending()
+        {
+            CartSortOption = SortOption.NameAscending;
+        }
+
+        public void SortCartByNameDescending()
+        {
+            CartSortOption = SortOption.NameDescending;
+        }
+
+        public void SortCartByPriceAscending()
+        {
+            CartSortOption = SortOption.PriceAscending;
+        }
+
+        public void SortCartByPriceDescending()
+        {
+            CartSortOption = SortOption.PriceDescending;
         }
     }
 
