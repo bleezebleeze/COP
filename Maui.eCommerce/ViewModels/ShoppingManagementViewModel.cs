@@ -145,6 +145,17 @@ namespace Maui.eCommerce.ViewModels
 
             RefreshUx();
         }
+
+        public void AddItemsToCart(ItemViewModel itemViewModel)
+        {
+            if (itemViewModel != null && itemViewModel != null)
+            {
+                _cartSvc.AddOrUpdate(itemViewModel.Model);
+            }
+
+            itemViewModel.QuantityToAdd = 1;
+            RefreshUx();
+        }
     }
 
 }
