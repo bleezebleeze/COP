@@ -17,6 +17,8 @@ namespace Maui.eCommerce.ViewModels
         private CartServiceProxy _cartSvc = CartServiceProxy.Current;
         public ItemViewModel? SelectedItem { get; set; }
         public ItemViewModel? SelectedCartItem { get; set; }
+        private string _newCartName = string.Empty;
+        private string? _selectedCartName;
 
         public enum SortOption
         {
@@ -52,6 +54,47 @@ namespace Maui.eCommerce.ViewModels
                     NotifyPropertyChanged(nameof(ShoppingCart));
                 }
             }
+        }
+
+        public ShoppingManagementViewModel()
+        {
+            _selectedCartName = _cartSvc.CurrentCartName;
+        }
+
+        public string NewCartName
+        {
+            get => _newCartName;
+            set
+            {
+                if (_newCartName != value)
+                {
+                    _newCartName = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public string SelectedCartName
+        {
+            get => _selectedCartName;
+            set
+            {
+                if (_selectedCartName != value)
+                {
+                    _selectedCartName = value;
+                    _cartSvc.CurrentCartName = value;
+                    NotifyPropertyChanged();
+                    NotifyPropertyChanged(nameof(ShoppingCart));
+                    NotifyPropertyChanged(nameof(CurrentCartDisplayName));
+                }
+            }
+        }
+
+        public string CurrentCartDisplayName => $"Current Cart: {SelectedCartName}";
+
+        public ObservableCollection<string> AvailableCarts
+        {
+            get => new ObservableCollection<string>(_cartSvc.AvailableCartNames);
         }
         public decimal CurrentTaxRate
         {
@@ -132,6 +175,8 @@ namespace Maui.eCommerce.ViewModels
             NotifyPropertyChanged(nameof(Inventory));
             NotifyPropertyChanged(nameof(ShoppingCart));
             NotifyPropertyChanged(nameof(CurrentTaxRate));
+            NotifyPropertyChanged(nameof(AvailableCarts));
+            NotifyPropertyChanged(nameof(CurrentCartDisplayName));
         }
 
         public void PurchaseItem()
@@ -166,6 +211,34 @@ namespace Maui.eCommerce.ViewModels
             }
         }
 
+        public bool CreateNewCart()
+        {
+            if (string.IsNullOrWhiteSpace(NewCartName))
+                return false;
+
+            bool result = _cartSvc.CreateNewCart(NewCartName);
+            if (result)
+            {
+                SelectedCartName = NewCartName;
+                NewCartName = string.Empty;
+                NotifyPropertyChanged(nameof(AvailableCarts));
+            }
+            return result;
+        }
+
+        public bool DeleteCurrentCart()
+        {
+            string cartToDelete = SelectedCartName;
+            bool result = _cartSvc.DeleteCart(cartToDelete);
+            if (result)
+            {
+                NotifyPropertyChanged(nameof(AvailableCarts));
+                NotifyPropertyChanged(nameof(ShoppingCart));
+                NotifyPropertyChanged(nameof(SelectedCartName));
+                NotifyPropertyChanged(nameof(CurrentCartDisplayName));
+            }
+            return result;
+        }
         public decimal CalculateTotal()
         {
             return _cartSvc.CartItems.Sum(i => (i.Price * i.Quantity) ?? 0);

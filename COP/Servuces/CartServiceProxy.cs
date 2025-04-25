@@ -12,16 +12,39 @@ namespace COP.Servuces
     public class CartServiceProxy
     {
         private ProductServiceProxy _prodSvc = ProductServiceProxy.Current;
-        private List<Item> items;
+        private Dictionary<string, List<Item>> carts;
+        private string currentCartName = "Default";
+        
 
         public List<Item> CartItems
         {
             get
             {
-                return items;
+                if (!carts.ContainsKey(currentCartName))
+                {
+                    carts[currentCartName] = new List<Item>();
+                }
+                return carts[currentCartName];
             }
         }
 
+        public List<string> AvailableCartNames => carts.Keys.ToList();
+
+        public string CurrentCartName
+        {
+            get => currentCartName;
+            set
+            {
+                if (value != null && currentCartName != value)
+                {
+                    currentCartName = value;
+                    if (!carts.ContainsKey(currentCartName))
+                    {
+                        carts[currentCartName] = new List<Item>();
+                    }
+                }
+            }
+        }
         public static CartServiceProxy Current
         {
             get
@@ -39,7 +62,11 @@ namespace COP.Servuces
 
         private CartServiceProxy()
         {
-            items = new List<Item>();
+            carts = new Dictionary<string, List<Item>>
+            {
+                { "Default", new List<Item>() },
+                { "Wishlist", new List<Item>() }
+            };
         }
 
         public Item? AddOrUpdate(Item item)
@@ -91,6 +118,54 @@ namespace COP.Servuces
                 }
             }
             return itemToReturn;
+        }
+
+        public bool CreateNewCart(string cartName)
+        {
+            if (string.IsNullOrWhiteSpace(cartName) || carts.ContainsKey(cartName))
+            {
+                return false;
+            }
+
+            carts[cartName] = new List<Item>();
+            return true;
+        }
+
+        public bool DeleteCart(string cartName)
+        {
+            if (cartName == "Default" || cartName == "Wishlist" || !carts.ContainsKey(cartName))
+            {
+                return false;
+            }
+
+            if (carts.TryGetValue(cartName, out List<Item> cartToDelete))
+            {
+                foreach (var item in cartToDelete.ToList())
+                {
+                    while (item.Quantity > 0)
+                    {
+                        item.Quantity--;
+                        var inventoryItem = _prodSvc.Products.FirstOrDefault(p => p.Id == item.Id);
+                        if (inventoryItem == null)
+                        {
+                            _prodSvc.AddOrUpdate(new Item(item) { Quantity = 1 });
+                        }
+                        else
+                        {
+                            inventoryItem.Quantity++;
+                        }
+                    }
+                }
+            }
+
+            carts.Remove(cartName);
+
+            if (currentCartName == cartName)
+            {
+                currentCartName = "Default";
+            }
+
+            return true;
         }
     }
 }
